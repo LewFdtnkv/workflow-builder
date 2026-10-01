@@ -1,0 +1,41 @@
+services:
+  frontend:
+    build: .
+    image: workflow-builder:local
+    ports:
+      - '8080:80'
+    depends_on:
+      - api
+  api:
+    build: ./backend
+    environment:
+      DB_URL: jdbc:postgresql://postgres:5432/workflow
+      DB_USERNAME: workflow
+      DB_PASSWORD: ${POSTGRES_PASSWORD:-workflow}
+      JWT_SECRET: ${JWT_SECRET:-change-this-development-secret-to-a-32-byte-minimum-value}
+      AUTH_COOKIE_SECURE: ${AUTH_COOKIE_SECURE:-false}
+    ports:
+      - '8081:8081'
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ['CMD-SHELL', 'wget -qO- http://localhost:8081/actuator/health | grep -q UP']
+      interval: 10s
+      timeout: 5s
+      retries: 10
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: workflow
+      POSTGRES_USER: workflow
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-workflow}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U workflow -d workflow']
+      interval: 5s
+      timeout: 3s
+      retries: 10
+volumes:
+  postgres_data:

@@ -1,0 +1,51 @@
+{
+  "name": "workflow-builder",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "preview": "vite preview",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "format": "prettier . --write",
+    "format:check": "prettier . --check",
+    "test:e2e": "playwright test",
+    "prepare": "husky"
+  },
+  "dependencies": {
+    "@reduxjs/toolkit": "latest",
+    "@tanstack/react-query": "latest",
+    "@vitejs/plugin-react": "latest",
+    "lucide-react": "latest",
+    "react": "latest",
+    "react-dom": "latest",
+    "react-redux": "latest",
+    "sass": "latest",
+    "typescript": "latest",
+    "vite": "latest"
+  },
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{scss,css,json,md,yml,yaml}": "prettier --write"
+  },
+  "devDependencies": {
+    "@eslint/js": "latest",
+    "@playwright/test": "^1.63.0",
+    "@types/node": "latest",
+    "@types/react": "latest",
+    "@types/react-dom": "latest",
+    "eslint": "latest",
+    "eslint-plugin-react-hooks": "latest",
+    "eslint-plugin-react-refresh": "latest",
+    "globals": "latest",
+    "husky": "^9.1.7",
+    "lint-staged": "^17.6.0",
+    "prettier": "latest",
+    "typescript-eslint": "latest"
+  }
+}
