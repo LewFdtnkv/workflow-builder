@@ -19,13 +19,28 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.springframework.stereotype.Service;
 
 @Service
+/**
+ * Validates and executes persisted workflow graphs.
+ *
+ * <p>The service follows edges from the single Start node, invokes public HTTP nodes,
+ * evaluates Condition nodes, and records a short execution result in the graph.</p>
+ */
 public class WorkflowExecutionService {
   private final HttpClient client = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(10)).build();
   private final Map<UUID, Execution> executions = new ConcurrentHashMap<>();
 
+  /** Result of graph validation, including every detected user-facing error. */
   public record Validation(boolean valid, List<String> errors) {}
+
+  /** Immutable description of one workflow execution. */
   public record Execution(UUID id, UUID ownerId, String status, String startedAt, String finishedAt, String error) {}
 
+  /**
+   * Checks structural and network-safety constraints before a graph is run.
+   *
+   * @param graph workflow graph in its JSON representation
+   * @return a validation result; {@code valid} is true only when no errors are found
+   */
   public Validation validate(JsonNode graph) {
     List<String> errors = new ArrayList<>();
     JsonNode nodes = graph.path("nodes");
@@ -47,6 +62,13 @@ public class WorkflowExecutionService {
     return new Validation(errors.isEmpty(), errors);
   }
 
+  /**
+   * Executes a validated graph and adds its outcome to the graph's run history.
+   *
+   * @param ownerId identifier of the user that owns the workflow
+   * @param graph mutable workflow graph
+   * @return the recorded execution outcome, including a safe error message on failure
+   */
   public Execution run(UUID ownerId, ObjectNode graph) {
     UUID id = UUID.randomUUID();
     String startedAt = Instant.now().toString();
@@ -67,6 +89,14 @@ public class WorkflowExecutionService {
     return result;
   }
 
+  /**
+   * Finds an execution belonging to a particular user.
+   *
+   * @param id execution identifier
+   * @param ownerId current user's identifier
+   * @return the requested execution
+   * @throws IllegalArgumentException when the execution does not exist or belongs to another user
+   */
   public Execution find(UUID id, UUID ownerId) {
     Execution execution = executions.get(id);
     if (execution == null || !execution.ownerId().equals(ownerId)) throw new IllegalArgumentException("Execution not found");

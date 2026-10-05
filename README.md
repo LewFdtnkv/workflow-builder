@@ -58,6 +58,18 @@ docker compose up --build
 
 Приложение будет доступно на `http://localhost:8080`. Nginx проксирует `/api` в backend. Документация API находится в [backend/README.md](backend/README.md).
 
+## Документация кода
+
+Документация серверного API генерируется Doxygen из JavaDoc-совместимых комментариев.
+При установленном Doxygen выполните из корня репозитория:
+
+```bash
+cd docs/doxygen
+doxygen Doxyfile
+```
+
+HTML и RTF-результаты появятся в `docs/doxygen/output/`.
+
 ## Структура
 
 ```text
