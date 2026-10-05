@@ -1,5 +1,15 @@
+/**
+ * REST API for creating, changing, validating, executing, and deleting a user's workflows.
+ *
+ * <p>Each endpoint scopes repository operations to the authenticated user.</p>
+ */
 package com.flowcraft.api.workflow;
 import com.fasterxml.jackson.databind.*; import com.fasterxml.jackson.databind.node.ObjectNode; import java.util.*; import org.springframework.http.*; import org.springframework.security.core.annotation.AuthenticationPrincipal; import org.springframework.web.bind.annotation.*;
+/**
+ * REST API for creating, changing, validating, executing, and deleting a user's workflows.
+ *
+ * <p>Each endpoint scopes repository operations to the authenticated user.</p>
+ */
 @RestController @RequestMapping("/api/workflows") public class WorkflowController { private final WorkflowRepository repo; private final ObjectMapper json; private final WorkflowExecutionService executions; public WorkflowController(WorkflowRepository repo,ObjectMapper json,WorkflowExecutionService executions){this.repo=repo;this.json=json;this.executions=executions;} private UUID user(String id){return UUID.fromString(id);} private JsonNode view(WorkflowEntity e){try{return json.readTree(e.getGraph());}catch(Exception x){throw new IllegalStateException(x);}} private String name(JsonNode node){if(!node.hasNonNull("name")||node.get("name").asText().isBlank())throw new IllegalArgumentException("Workflow name is required");return node.get("name").asText();}
  @GetMapping List<JsonNode> list(@AuthenticationPrincipal String id){return repo.findByOwnerIdOrderByUpdatedAtDesc(user(id)).stream().map(this::view).toList();}
  @GetMapping("/{id}") JsonNode get(@AuthenticationPrincipal String user,@PathVariable UUID id){return view(repo.findByIdAndOwnerId(id,user(user)).orElseThrow(()->new NoSuchElementException("Workflow not found")));}

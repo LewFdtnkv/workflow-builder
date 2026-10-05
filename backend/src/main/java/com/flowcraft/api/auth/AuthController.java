@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api/auth")
+/** REST endpoints for registration, login, token refresh, and logout. */
 public class AuthController {
   private final AuthService auth;
   private final boolean secureCookie;
@@ -31,18 +32,37 @@ public class AuthController {
     this.refreshDays = refreshDays;
   }
 
+  /** Validated credentials accepted by registration and login endpoints. */
   public record Credentials(@Email @NotBlank String email, @Size(min = 8, max = 72) String password) {}
 
+  /**
+   * Creates an account and its authenticated browser session.
+   *
+   * @param credentials validated registration data
+   * @return access token response and refresh-token cookie
+   */
   @PostMapping("/register")
   public ResponseEntity<AuthService.Token> register(@RequestBody @Valid Credentials credentials) {
     return respond(auth.register(credentials.email(), credentials.password()), HttpStatus.CREATED);
   }
 
+  /**
+   * Authenticates an existing account.
+   *
+   * @param credentials validated login data
+   * @return access token response and refreshed cookie
+   */
   @PostMapping("/login")
   public ResponseEntity<AuthService.Token> login(@RequestBody @Valid Credentials credentials) {
     return respond(auth.login(credentials.email(), credentials.password()), HttpStatus.OK);
   }
 
+  /**
+   * Rotates tokens using the refresh-token cookie.
+   *
+   * @param refreshToken optional HttpOnly refresh cookie
+   * @return a new access token, or 401 when no cookie was supplied
+   */
   @PostMapping("/refresh")
   public ResponseEntity<AuthService.Token> refresh(
       @CookieValue(name = "refresh_token", required = false) String refreshToken) {
@@ -52,6 +72,11 @@ public class AuthController {
     return respond(auth.refresh(refreshToken), HttpStatus.OK);
   }
 
+  /**
+   * Clears the browser's refresh-token cookie.
+   *
+   * @return an empty successful response with an expired cookie
+   */
   @PostMapping("/logout")
   public ResponseEntity<Void> logout() {
     return ResponseEntity.noContent().header(HttpHeaders.SET_COOKIE, refreshCookie("", 0).toString()).build();

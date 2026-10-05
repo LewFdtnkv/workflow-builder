@@ -14,6 +14,12 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
+/**
+ * Implements account registration, credential verification, and JWT issuance.
+ *
+ * <p>Refresh tokens are signed with the same configured key as access tokens but carry
+ * a distinct {@code type} claim and a longer lifetime.</p>
+ */
 public class AuthService {
   private final UserRepository users;
   private final PasswordEncoder encoder;
@@ -34,6 +40,14 @@ public class AuthService {
     this.refreshTtl = Duration.ofDays(refreshDays);
   }
 
+  /**
+   * Registers a user and issues an access/refresh token pair.
+   *
+   * @param email unique account email address
+   * @param password plain-text password to hash before storing
+   * @return tokens for the newly created account
+   * @throws IllegalArgumentException when the address is already registered
+   */
   public IssuedTokens register(String email, String password) {
     if (users.findByEmailIgnoreCase(email).isPresent()) {
       throw new IllegalArgumentException("Email already registered");
@@ -41,6 +55,14 @@ public class AuthService {
     return issue(users.save(new User(email.toLowerCase(), encoder.encode(password))));
   }
 
+  /**
+   * Verifies credentials and creates a fresh token pair.
+   *
+   * @param email account email address
+   * @param password plain-text account password
+   * @return tokens for the authenticated user
+   * @throws IllegalArgumentException when the credentials are invalid
+   */
   public IssuedTokens login(String email, String password) {
     User user = users.findByEmailIgnoreCase(email)
         .filter(candidate -> encoder.matches(password, candidate.getPasswordHash()))
@@ -48,6 +70,13 @@ public class AuthService {
     return issue(user);
   }
 
+  /**
+   * Exchanges a valid refresh token for a new token pair.
+   *
+   * @param refreshToken signed refresh token from the HttpOnly cookie
+   * @return newly issued access and refresh tokens
+   * @throws IllegalArgumentException when the token is invalid, is not a refresh token, or references no user
+   */
   public IssuedTokens refresh(String refreshToken) {
     Claims claims = parse(refreshToken);
     if (!"refresh".equals(claims.get("type", String.class))) {
@@ -79,6 +108,9 @@ public class AuthService {
     return Jwts.parser().verifyWith(key).build().parseSignedClaims(token).getPayload();
   }
 
+  /** Public token payload returned to the browser after authentication. */
   public record Token(String accessToken, String email) {}
+
+  /** Pair of the browser-visible session and the HttpOnly refresh token. */
   public record IssuedTokens(Token session, String refreshToken) {}
 }

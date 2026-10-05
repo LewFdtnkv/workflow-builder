@@ -16,12 +16,26 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 @Configuration
 @EnableWebSecurity
+/** Configures stateless JWT security, password hashing, and local-development CORS. */
 public class SecurityConfig {
+  /**
+   * Creates the BCrypt password encoder used when accounts are registered.
+   *
+   * @return password encoder for credential hashes
+   */
   @Bean
   PasswordEncoder passwordEncoder() {
     return new BCryptPasswordEncoder();
   }
 
+  /**
+   * Creates the HTTP security chain and places JWT authentication before username/password authentication.
+   *
+   * @param http Spring Security HTTP configuration builder
+   * @param jwt filter that parses bearer access tokens
+   * @return configured stateless security filter chain
+   * @throws Exception when Spring Security cannot build the chain
+   */
   @Bean
   SecurityFilterChain security(HttpSecurity http, JwtAuthenticationFilter jwt) throws Exception {
     return http
@@ -37,6 +51,11 @@ public class SecurityConfig {
         .build();
   }
 
+  /**
+   * Allows the local Vite development server to access the API with credentials.
+   *
+   * @return configured CORS source
+   */
   @Bean
   CorsConfigurationSource corsConfigurationSource() {
     CorsConfiguration config = new CorsConfiguration();

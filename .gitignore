@@ -6,6 +6,7 @@ vite.config.d.ts
 playwright-report/
 test-results/
 .docker-tmp/
+docs/doxygen/output/
 .env
 .env.*
 !.env.example

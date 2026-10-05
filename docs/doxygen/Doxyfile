@@ -1,0 +1,29 @@
+# Doxygen configuration for the Flowcraft backend API.
+# Run from this directory: doxygen Doxyfile
+
+PROJECT_NAME           = "Flowcraft API"
+PROJECT_BRIEF          = "Backend API for designing and executing workflows"
+PROJECT_NUMBER         = "0.2.0-lab2"
+OUTPUT_LANGUAGE        = Russian
+OUTPUT_DIRECTORY       = output
+CREATE_SUBDIRS         = NO
+
+INPUT                  = ../../backend/src/main/java overview.md
+FILE_PATTERNS          = *.java *.md
+RECURSIVE              = YES
+EXTRACT_ALL            = YES
+EXTRACT_PRIVATE        = YES
+EXTRACT_STATIC         = YES
+JAVADOC_AUTOBRIEF      = YES
+MARKDOWN_SUPPORT       = YES
+USE_MDFILE_AS_MAINPAGE = overview.md
+
+GENERATE_HTML          = YES
+HTML_OUTPUT            = html
+GENERATE_RTF           = YES
+RTF_OUTPUT             = rtf
+GENERATE_LATEX         = NO
+GENERATE_XML           = NO
+QUIET                  = YES
+WARN_IF_UNDOCUMENTED   = YES
+WARN_LOGFILE           = output/warnings.log
