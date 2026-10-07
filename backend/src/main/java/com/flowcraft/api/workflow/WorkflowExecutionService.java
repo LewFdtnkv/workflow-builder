@@ -64,8 +64,7 @@ public class WorkflowExecutionService {
                     errors.add("HTTP nodes require a public http or https URL");
                 }
             }
-        }
-        if (starts != 1) errors.add("Workflow must have exactly one Start node");
+	if (starts != 1) errors.add("Workflow must have exactly one Start node");
         boolean hasResult = false;
         if (nodes.isArray())
             for (JsonNode node : nodes) if ("result".equals(node.path("kind").asText())) hasResult = true;
