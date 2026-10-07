@@ -79,7 +79,7 @@ Husky запускает `lint-staged` перед каждым коммитом:
 Для запуска frontend вместе с API и PostgreSQL используйте Docker Compose из корня проекта:
 
 ```bash
-docker compose up --build
+docker compose up --build 
 ```
 
 Приложение будет доступно на `http://localhost:8080`. Nginx проксирует `/api` в backend. Документация API находится в [backend/README.md](backend/README.md).
