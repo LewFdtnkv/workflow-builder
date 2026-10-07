@@ -35,12 +35,12 @@ public class WorkflowExecutionService {
   /** Immutable description of one workflow execution. */
   public record Execution(UUID id, UUID ownerId, String status, String startedAt, String finishedAt, String error) {}
 
-  /**
-   * Checks structural and network-safety constraints before a graph is run.
-   *
-   * @param graph workflow graph in its JSON representation
-   * @return a validation result; {@code valid} is true only when no errors are found
-   */
+    /**
+     * Проверяет структурные и сетевые ограничения перед запуском графа.
+     *
+     * @param graph рабочий граф в формате JSON
+     * @return результат проверки; {@code valid} имеет значение true только при отсутствии ошибок
+     */
   public Validation validate(JsonNode graph) {
     List<String> errors = new ArrayList<>();
     JsonNode nodes = graph.path("nodes");
